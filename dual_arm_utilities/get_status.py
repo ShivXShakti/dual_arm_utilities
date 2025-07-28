@@ -1,6 +1,8 @@
 from rclpy.node import Node
 import ast  # Safely evaluate string representation of list
 import darm_msgs.msg
+from dual_arm_utilities.utilities import create_csv
+from datetime import datetime
 
 
 class GetStatus(Node):
@@ -25,10 +27,17 @@ class GetStatus(Node):
 
         self.cmd_status_f = False
         self.warn_once_f = False
+        self.file_path_fk = '/home/kd/Documents/dual_arm_ws/src/dual_arm_utilities/data/fil1.csv'
+        self.file_path_desired = '/home/cstar/Documents/dual_arm_ws/src/end_effector_tracking/data/desired_ee_pose_1.csv'
+        self.file_path_aruco = '/home/cstar/Documents/dual_arm_ws/src/end_effector_tracking/data/aruco_ee_pose_1.csv'
+        create_csv(self.file_path_fk)
+        self.create_csv(self.file_path_desired)
+        self.create_csv(self.file_path_aruco)
 
         self.pub = self.create_subscription(darm_msgs.msg.UiCommand,"svaya/ui/command", self.cmd_callback,10)
         self.sub = self.create_subscription(darm_msgs.msg.UiStatus, "svaya/ui/status",self.js_callback,10)
 
+    
     def js_callback(self, msg):
         if self.cmd_status_f:
             if self.warn_once_f:
