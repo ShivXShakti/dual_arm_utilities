@@ -12,7 +12,7 @@ def generate_launch_description():
     return LaunchDescription([
         Node(
             package='dual_arm_utilities',
-            executable='rough',
+            executable='get_status',
             name='status_node',
             output='screen',
             parameters=[config_file]  # relative to install space
