@@ -8,4 +8,10 @@ def create_csv(folder_path, data):
     timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
     file_name = f"{data}_{timestamp}.csv"
     full_path = os.path.join(folder_path, file_name)
+    if not os.path.exists(full_path):
+            with open(full_path, mode='w', newline='') as file:
+                writer = csv.writer(file)
+                #writer.writerow(['{data}_{}'.format(i) for i in range(14)])
+    else:
+         print(f"File already exists:{full_path}")
     return full_path

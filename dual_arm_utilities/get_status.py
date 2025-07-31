@@ -40,16 +40,16 @@ class GetStatus(Node):
         file_path_velocity = '/home/cstar/Documents/dual_arm_ws/src/dual_arm_utilities/data/v'
         file_path_torque = '/home/cstar/Documents/dual_arm_ws/src/dual_arm_utilities/data/'
         file_path_ft = '/home/cstar/Documents/dual_arm_ws/src/dual_arm_utilities/data/'
-        if position:
+        if position=='position':
             create_csv(file_path_position,'position')
             print(f"Creating csv file for position:{file_path_position}")
-        if velocity:
+        if velocity=='velocity':
             create_csv(file_path_velocity, 'velocity')
             print(f"Creating csv file for velocity:{file_path_velocity}")
-        if torque:
+        if torque=='torque':
             create_csv(file_path_torque, 'torque')
             print(f"Creating csv file for torque:{file_path_torque}")
-        if ft:
+        if ft=='torque':
             create_csv(file_path_ft, 'ft')
             print(f"Creating csv file for ft:{file_path_ft}")
         return [file_path_position, file_path_velocity, file_path_torque, file_path_ft]

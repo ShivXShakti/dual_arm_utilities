@@ -1,0 +1,6 @@
+status_node:
+  ros__parameters:
+    position: true
+    velocity: true
+    torque: true
+    ft: false
