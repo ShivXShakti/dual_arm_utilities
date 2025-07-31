@@ -7,6 +7,7 @@ from datetime import datetime
 import numpy as np
 import csv
 import darm_msgs.msg
+from std_msgs.msg import Bool
 
 
 
@@ -23,13 +24,13 @@ class GetStatus(Node):
         self.torque = self.get_parameter('torque').get_parameter_value().bool_value
         self.ft = self.get_parameter('ft').get_parameter_value().bool_value
 
-        self.cmd_status_f = False
+        self.traj_status = None
         self.warn_once_f = False
         
         self.file_paths = self.file_path_create_init(position=self.position, velocity=self.velocity, torque=self.torque, ft=self.ft)
 
-        self.create_subscription(darm_msgs.msg.UiCommand,"svaya/ui/command", self.cmd_callback,10)
         self.create_subscription(darm_msgs.msg.UiStatus, "svaya/ui/status",self.status_calback,10)
+        self.create_subscription(Bool, "traj/status",self.traj_status_calback,10)
 
     def file_path_create_init(self, position, velocity, torque, ft):
         base_path = '/home/cstar/Documents/dual_arm_ws/src/dual_arm_utilities/data/'
@@ -52,7 +53,7 @@ class GetStatus(Node):
             self.get_logger().info(f"Creating csv file for ft:{ftfp}")
         return paths
     def status_calback(self, msg):
-        if self.cmd_status_f:
+        if self.traj_status:
             if self.warn_once_f:
                 self.get_logger().info(f"Received cmd")
                 self.warn_once_f = False
@@ -76,8 +77,9 @@ class GetStatus(Node):
             if not self.warn_once_f:
                 self.get_logger().info(f"Command to robot hasn't been published yet...")
                 self.warn_once_f = True
-    def cmd_callback(self, msg):
-        self.cmd_status_f  = True
+   
+    def traj_status_calback(self, msg):
+        self.traj_status = msg.data
 
 def main(args = None):
     rclpy.init(args=args)
