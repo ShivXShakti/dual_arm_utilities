@@ -1,5 +1,6 @@
 status_node:
   ros__parameters:
+    sampling_frequency: 100.0
     position: true
     velocity: true
     torque: true

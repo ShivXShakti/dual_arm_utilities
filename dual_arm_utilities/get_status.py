@@ -15,14 +15,17 @@ class GetStatus(Node):
     def __init__(self):
         super().__init__('status_node')
 
+        self.declare_parameter('sampling_frequency', 100.0)
         self.declare_parameter('position', False)
         self.declare_parameter('velocity', False)
         self.declare_parameter('torque', False)
         self.declare_parameter('ft', False)
+        self.sampling_frequency = self.get_parameter('sampling_frequency').get_parameter_value().double_value
         self.position = self.get_parameter('position').get_parameter_value().bool_value
         self.velocity = self.get_parameter('velocity').get_parameter_value().bool_value
         self.torque = self.get_parameter('torque').get_parameter_value().bool_value
         self.ft = self.get_parameter('ft').get_parameter_value().bool_value
+        self.counter = 0.0
 
         self.traj_status = None
         self.warn_once_f = False
@@ -60,22 +63,23 @@ class GetStatus(Node):
             data_lit = []
             self.status = msg
             if self.position:
-                dposition = np.concatenate((self.status.left_arm.position, self.status.right_arm.position))
+                dposition = np.concatenate(([self.counter],self.status.left_arm.position, self.status.right_arm.position))
                 data_lit.append(dposition)
             if self.velocity:
-                dvelocity = np.concatenate((self.status.left_arm.velocity, self.status.right_arm.velocity))
+                dvelocity = np.concatenate(([self.counter],self.status.left_arm.velocity, self.status.right_arm.velocity))
                 data_lit.append(dvelocity)
             if self.torque:
-                dtorque = np.concatenate((self.status.left_arm.torque, self.status.right_arm.torque))
+                dtorque = np.concatenate(([self.counter],self.status.left_arm.torque, self.status.right_arm.torque))
                 data_lit.append(dtorque)
             for i in range(len(self.file_paths)):
                 with open(self.file_paths[i], mode='a', newline='') as file:
                     writer = csv.writer(file)
                     writer.writerow(data_lit[i])
+            self.counter = 1/self.sampling_frequency
             
         else:
             if not self.warn_once_f:
-                self.get_logger().info(f"Command to robot hasn't been published yet...")
+                self.get_logger().info(f"No command to robot...")
                 self.warn_once_f = True
    
     def traj_status_calback(self, msg):
