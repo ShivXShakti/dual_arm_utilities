@@ -11,7 +11,6 @@ def create_csv(folder_path, data):
     if not os.path.exists(full_path):
             with open(full_path, mode='w', newline='') as file:
                 writer = csv.writer(file)
-                #writer.writerow(['{data}_{}'.format(i) for i in range(14)])
     else:
          print(f"File already exists:{full_path}")
     return full_path

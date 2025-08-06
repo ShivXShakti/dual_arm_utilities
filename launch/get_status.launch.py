@@ -15,6 +15,6 @@ def generate_launch_description():
             executable='get_status',
             name='status_node',
             output='screen',
-            parameters=[config_file]  # relative to install space
+            parameters=[config_file]
         )
     ])

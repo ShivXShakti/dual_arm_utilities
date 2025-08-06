@@ -26,7 +26,6 @@ setup(
     entry_points={
         'console_scripts': [
             'get_status = dual_arm_utilities.get_status:main',
-            'rough = dual_arm_utilities.rough:main',
         ],
     },
 )
