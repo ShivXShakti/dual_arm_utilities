@@ -33,7 +33,7 @@ class GetStatus(Node):
         self.data_at_sampling_frequency = self.get_parameter('data_at_sampling_frequency').get_parameter_value().bool_value
         self.counter = 0.0
 
-        self.traj_status = None
+        self.traj_status = False
         self.warn_once_f = False
 
         self.timer = self.create_timer(1/self.sampling_frequency, self.timer_callback)
@@ -100,10 +100,7 @@ class GetStatus(Node):
                 if not self.warn_once_f:
                     self.get_logger().info(f"No command to robot...")
                     self.warn_once_f = True
-                else:
-                    if not self.traj_status and self.warn_once_f:
-                        self.get_logger().info(f"Actual status data of URS saved at: {self.file_paths}")
-                        exit()
+               
         else:
             self.status = msg
 
@@ -118,7 +115,6 @@ class GetStatus(Node):
                     self.get_logger().info(f"Received cmd")
                     self.warn_once_f = False
                 data_lit = []
-                self.status = msg
                 if self.position:
                     dposition = np.concatenate(([self.counter],self.status.left_arm.position, self.status.right_arm.position))
                     data_lit.append(dposition)
@@ -137,10 +133,7 @@ class GetStatus(Node):
                 if not self.warn_once_f:
                     self.get_logger().info(f"No command to robot...")
                     self.warn_once_f = True
-                else:
-                    if not self.traj_status and self.warn_once_f:
-                        self.get_logger().info(f"Actual status data of URS saved at: {self.file_paths}")
-                        exit()
+              
 
 def main(args = None):
     rclpy.init(args=args)
