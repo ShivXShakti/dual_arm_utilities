@@ -1,4 +1,5 @@
 # dual_arm_utilities
+Modify config file accordingly
 ```bash
 ros2 launch dual_arm_utilities get_status.launch.py
 ```
