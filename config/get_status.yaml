@@ -1,10 +1,13 @@
 status_node:
   ros__parameters:
     sampling_frequency: 100.0
-    data_at_sampling_frequency: true
-    position: true
-    velocity: true
-    torque: true
+    data_at_sampling_frequency: false
+
+    position: false
+    velocity: false
+    torque: false
+    pose: true
     ft: false
     base_path: '/home/cstar/Documents/dual_arm_ws/src/dual_arm_utilities/data'
     file_name: 'exp1'
+    
