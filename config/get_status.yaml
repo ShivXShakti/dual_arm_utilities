@@ -10,4 +10,5 @@ status_node:
     ft: false
     base_path: '/home/cstar/Documents/dual_arm_ws/src/dual_arm_utilities/data'
     file_name: 'exp1'
+    blending_params_f: true
     
