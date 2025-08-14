@@ -24,7 +24,7 @@ class GetStatus(Node):
         self.declare_parameter('file_name', 'exp0')
         self.declare_parameter('data_at_sampling_frequency', True)
         self.declare_parameter('pose', True)
-        self.declare_parameter('blending_params_pub_f', True)
+        self.declare_parameter('blending_params_f', True)
         
         self.sampling_frequency = self.get_parameter('sampling_frequency').get_parameter_value().double_value
         self.position = self.get_parameter('position').get_parameter_value().bool_value
@@ -49,7 +49,7 @@ class GetStatus(Node):
         self.create_subscription(Float64MultiArray, 'traj/pose', self.pose_callback, 10)
         self.create_subscription(FtsData, "/svaya/fts/status",self.fts_callback,10)
         self.create_subscription(Bool, "traj/status",self.traj_status_calback,10)
-        self.create_subscription(Bool, "blending/params/beta_omega_alpha",self.blending_calback,10)
+        self.create_subscription(Float64MultiArray, "blending/params/beta_omega_alpha",self.blending_calback,10)
         self.get_logger().info(f"Initialized parameters:\n sampling_frequency:{self.sampling_frequency}")
         if self.pose:
              self.pose_path = create_csv(self.base_path,data=f'pose_{self.file_name}')
@@ -93,13 +93,13 @@ class GetStatus(Node):
                 data_lit = []
                 self.status = msg
                 if self.position:
-                    dposition = np.concatenate(([self.counter],self.status.left_arm.position, self.status.right_arm.position))
+                    dposition = np.concatenate((self.status.left_arm.position, self.status.right_arm.position))
                     data_lit.append(dposition)
                 if self.velocity:
-                    dvelocity = np.concatenate(([self.counter],self.status.left_arm.velocity, self.status.right_arm.velocity))
+                    dvelocity = np.concatenate((self.status.left_arm.velocity, self.status.right_arm.velocity))
                     data_lit.append(dvelocity)
                 if self.torque:
-                    dtorque = np.concatenate(([self.counter],self.status.left_arm.torque, self.status.right_arm.torque))
+                    dtorque = np.concatenate((self.status.left_arm.torque, self.status.right_arm.torque))
                     data_lit.append(dtorque)
                 for i in range(len(data_lit)):
                     with open(self.file_paths[i], mode='a', newline='') as file:
@@ -123,12 +123,12 @@ class GetStatus(Node):
                     writer.writerow(pose)
     
     def blending_calback(self, msg):
-        if self.traj_status:
-            if self.blending_params_f:
-                blending_params = msg.data
-                with open(self.blending_params_path, mode='a', newline='') as file:
-                    writer = csv.writer(file)
-                    writer.writerow(blending_params)
+        if self.blending_params_f:
+            blending_params = msg.data
+            self.get_logger().info(f"blending_params:{blending_params}")
+            with open(self.blending_params_path, mode='a', newline='') as file:
+                writer = csv.writer(file)
+                writer.writerow(blending_params)
    
     def traj_status_calback(self, msg):
         self.traj_status = msg.data
