@@ -6,9 +6,9 @@ status_node:
     position: false
     velocity: false
     torque: false
-    pose: true
+    pose: false
     ft: false
     base_path: '/home/cstar/Documents/dual_arm_ws/src/dual_arm_utilities/data'
-    file_name: 'exp1'
+    file_name: 'exp1_blend'
     blending_params_f: true
     
