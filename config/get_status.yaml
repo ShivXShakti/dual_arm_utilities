@@ -1,14 +1,15 @@
 status_node:
   ros__parameters:
     sampling_frequency: 100.0
-    data_at_sampling_frequency: false
-
+    data_at_sampling_frequency: true
     position: false
     velocity: false
-    torque: false
-    pose: true
+    torque: true
+    pose: false
     ft: false
-    base_path: '/home/cstar/Documents/dual_arm_ws/src/dual_arm_utilities/data'
-    file_name: 'exp1'
-    blending_params_f: true
+    base_path: '/home/svaya/Desktop/rde_darm_testing/src/dual_arm_utilities/data'
+    file_name: '200sk_w_blending'
+    blending_params_f: false
+    pose_error_f: false
+    torque_d_f: true
     

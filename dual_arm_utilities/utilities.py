@@ -1,6 +1,5 @@
 import os
 import csv
-import matplotlib.pyplot as plt
 from datetime import datetime
 import time
 def create_csv(folder_path, data):

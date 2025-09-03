@@ -25,6 +25,8 @@ class GetStatus(Node):
         self.declare_parameter('data_at_sampling_frequency', True)
         self.declare_parameter('pose', True)
         self.declare_parameter('blending_params_f', True)
+        self.declare_parameter('pose_error_f', True)
+        self.declare_parameter('torque_d_f', True)
         
         self.sampling_frequency = self.get_parameter('sampling_frequency').get_parameter_value().double_value
         self.position = self.get_parameter('position').get_parameter_value().bool_value
@@ -36,6 +38,8 @@ class GetStatus(Node):
         self.data_at_sampling_frequency = self.get_parameter('data_at_sampling_frequency').get_parameter_value().bool_value
         self.pose = self.get_parameter('pose').get_parameter_value().bool_value
         self.blending_params_f = self.get_parameter('blending_params_f').get_parameter_value().bool_value
+        self.pose_error_f = self.get_parameter('pose_error_f').get_parameter_value().bool_value
+        self.torque_d_f = self.get_parameter('torque_d_f').get_parameter_value().bool_value
         self.counter = 0.0
 
         self.traj_status = False
@@ -47,14 +51,20 @@ class GetStatus(Node):
 
         self.create_subscription(darm_msgs.msg.UiStatus, "svaya/ui/status",self.status_calback,10)
         self.create_subscription(Float64MultiArray, 'traj/pose', self.pose_callback, 10)
+        self.create_subscription(Float64MultiArray, 'traj/pose_error', self.pose_error_callback, 10)
         self.create_subscription(FtsData, "/svaya/fts/status",self.fts_callback,10)
         self.create_subscription(Bool, "traj/status",self.traj_status_calback,10)
         self.create_subscription(Float64MultiArray, "blending/params/beta_omega_alpha",self.blending_calback,10)
+        self.create_subscription(Float64MultiArray, "torque/desired",self.torque_d_calback,10)
         self.get_logger().info(f"Initialized parameters:\n sampling_frequency:{self.sampling_frequency}")
         if self.pose:
              self.pose_path = create_csv(self.base_path,data=f'pose_{self.file_name}')
+        if self.pose_error_f:
+             self.pose_error_path = create_csv(self.base_path,data=f'pose_error_{self.file_name}')
         if self.blending_params_f:
              self.blending_params_path = create_csv(self.base_path,data=f'blending_{self.file_name}')
+        if self.torque_d_f:
+             self.torque_d_path = create_csv(self.base_path,data=f'torque_d_{self.file_name}')
        
     def file_path_create_init(self, position, velocity, torque, ft):
         paths = []
@@ -77,21 +87,33 @@ class GetStatus(Node):
         return paths
     
     def fts_callback(self, msg):
-        if not self.data_at_sampling_frequency:
-            if self.traj_status:
-                if self.ft:
+        if self.ft:
+            if not self.data_at_sampling_frequency:
+                if self.traj_status:
                     with open(self.file_paths[-1], mode='a', newline='') as file:
                             writer = csv.writer(file)
                             writer.writerow(np.concatenate(([self.counter], msg.data)))
+            else:
+                self.ft_status = msg.data
+
+
+    def torque_d_calback(self, msg):
+        if self.torque_d_f:
+                td = msg.data
+                with open(self.torque_d_path, mode='a', newline='') as file:
+                    writer = csv.writer(file)
+                    writer.writerow(td)
+
     
     def status_calback(self, msg):
+        self.status = msg
         if not self.data_at_sampling_frequency and (self.position or self.velocity or self.torque or self.ft):
             if self.traj_status:
                 if self.warn_once_f:
                     self.get_logger().info(f"Received cmd")
                     self.warn_once_f = False
                 data_lit = []
-                self.status = msg
+                
                 if self.position:
                     dposition = np.concatenate((self.status.left_arm.position, self.status.right_arm.position))
                     data_lit.append(dposition)
@@ -119,6 +141,12 @@ class GetStatus(Node):
             if self.pose:
                 pose = msg.data
                 with open(self.pose_path, mode='a', newline='') as file:
+                    writer = csv.writer(file)
+                    writer.writerow(pose)
+    def pose_error_callback(self, msg):
+            if self.pose_error_f:
+                pose = msg.data
+                with open(self.pose_error_path, mode='a', newline='') as file:
                     writer = csv.writer(file)
                     writer.writerow(pose)
     
@@ -149,6 +177,9 @@ class GetStatus(Node):
                 if self.torque:
                     dtorque = np.concatenate(([self.counter],self.status.left_arm.torque, self.status.right_arm.torque))
                     data_lit.append(dtorque)
+                if self.ft:
+                    dft = np.concatenate(([self.counter],[self.ft_status.fx, self.ft_status.fy, self.ft_status.fz, self.ft_status.tx, self.ft_status.ty, self.ft_status.tz]))
+                    data_lit.append(dft)
                 for i in range(len(data_lit)):
                     with open(self.file_paths[i], mode='a', newline='') as file:
                         writer = csv.writer(file)
