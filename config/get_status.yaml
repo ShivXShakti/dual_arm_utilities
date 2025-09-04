@@ -4,13 +4,13 @@ status_node:
     data_at_sampling_frequency: true
     position: false
     velocity: false
-    torque: true
-    pose: false
+    torque: false
+    pose: true
     ft: false
     base_path: '/home/svaya/Desktop/rde_darm_testing/src/dual_arm_utilities/data'
     file_name: '200sk_w_blending'
     blending_params_f: false
-    pose_error_f: false
-    torque_d_f: true
-    torque_a_f: true
+    pose_error_f: true
+    torque_d_f: false
+    torque_a_f: false
     

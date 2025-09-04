@@ -95,9 +95,12 @@ class GetStatus(Node):
         if self.ft:
             if not self.data_at_sampling_frequency:
                 if self.traj_status:
+                    ft_l = np.array([msg.data[0]])[0]
+                    ft_r = np.array([msg.data[1]])[0]
+                    fts_status = np.array([ft_l.fx, ft_l.fy, ft_l.fz, ft_l.tx, ft_l.ty, ft_l.tz, ft_r.fx, ft_r.fy, ft_r.fz, ft_r.tx, ft_r.ty, ft_r.tz])
                     with open(self.file_paths[-1], mode='a', newline='') as file:
                             writer = csv.writer(file)
-                            writer.writerow(np.concatenate(([self.counter], msg.data)))
+                            writer.writerow(np.concatenate(([self.counter], fts_status)))
             else:
                 self.ft_status = msg.data
 
