@@ -22,11 +22,12 @@ class GetStatus(Node):
         self.declare_parameter('ft', False)
         self.declare_parameter('base_path', '/home/svaya/Desktop/rde_darm_testing/src/dual_arm_utilities/data/')
         self.declare_parameter('file_name', 'exp0')
-        self.declare_parameter('data_at_sampling_frequency', True)
-        self.declare_parameter('pose', True)
-        self.declare_parameter('blending_params_f', True)
-        self.declare_parameter('pose_error_f', True)
-        self.declare_parameter('torque_d_f', True)
+        self.declare_parameter('data_at_sampling_frequency', False)
+        self.declare_parameter('pose', False)
+        self.declare_parameter('blending_params_f', False)
+        self.declare_parameter('pose_error_f', False)
+        self.declare_parameter('torque_d_f', False)
+        self.declare_parameter('torque_a_f', False)
         
         self.sampling_frequency = self.get_parameter('sampling_frequency').get_parameter_value().double_value
         self.position = self.get_parameter('position').get_parameter_value().bool_value
@@ -40,6 +41,7 @@ class GetStatus(Node):
         self.blending_params_f = self.get_parameter('blending_params_f').get_parameter_value().bool_value
         self.pose_error_f = self.get_parameter('pose_error_f').get_parameter_value().bool_value
         self.torque_d_f = self.get_parameter('torque_d_f').get_parameter_value().bool_value
+        self.torque_a_f = self.get_parameter('torque_a_f').get_parameter_value().bool_value
         self.counter = 0.0
 
         self.traj_status = False
@@ -56,6 +58,7 @@ class GetStatus(Node):
         self.create_subscription(Bool, "traj/status",self.traj_status_calback,10)
         self.create_subscription(Float64MultiArray, "blending/params/beta_omega_alpha",self.blending_calback,10)
         self.create_subscription(Float64MultiArray, "torque/desired",self.torque_d_calback,10)
+        self.create_subscription(Float64MultiArray, "torque/actual",self.torque_a_calback,10)
         self.get_logger().info(f"Initialized parameters:\n sampling_frequency:{self.sampling_frequency}")
         if self.pose:
              self.pose_path = create_csv(self.base_path,data=f'pose_{self.file_name}')
@@ -64,7 +67,9 @@ class GetStatus(Node):
         if self.blending_params_f:
              self.blending_params_path = create_csv(self.base_path,data=f'blending_{self.file_name}')
         if self.torque_d_f:
-             self.torque_d_path = create_csv(self.base_path,data=f'torque_d_{self.file_name}')
+             self.torque_d_path = create_csv(self.base_path,data=f'torque_d_{self.file_name}') 
+        if self.torque_a_f:
+             self.torque_a_path = create_csv(self.base_path,data=f'torque_a_{self.file_name}') 
        
     def file_path_create_init(self, position, velocity, torque, ft):
         paths = []
@@ -96,13 +101,18 @@ class GetStatus(Node):
             else:
                 self.ft_status = msg.data
 
-
     def torque_d_calback(self, msg):
         if self.torque_d_f:
                 td = msg.data
                 with open(self.torque_d_path, mode='a', newline='') as file:
                     writer = csv.writer(file)
                     writer.writerow(td)
+    def torque_a_calback(self, msg):
+        if self.torque_a_f:
+                ta = msg.data
+                with open(self.torque_a_path, mode='a', newline='') as file:
+                    writer = csv.writer(file)
+                    writer.writerow(ta)
 
     
     def status_calback(self, msg):
